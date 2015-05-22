@@ -11,18 +11,21 @@ int main( int argc, char** argv )
     IplImage* prev_img;
     IplImage* curr_img;
     IplImage* computed_img;
-    CvSize isize = cvSize(80,80);
 
     CvCapture* webcam = cvCreateCameraCapture(0);
     if (!webcam)
         return 1;
     prev_img = cvQueryFrame(webcam);
-    computed_img = cvCreateImage(isize, IPL_DEPTH_32F, 1); 
+    IplImage* prev_prepared = cvCreateImage(cvGetSize(prev_img), IPL_DEPTH_32F, 1);
+    cvCvtColor(prev_img, prev_prepared, CV_BGR2GRAY);
+    cvSaveImage("prev.jpg", prev_prepared, 0);
+    computed_img = cvCreateImage(cvGetSize(prev_img), IPL_DEPTH_32F, 1);
     sleep(1);
     curr_img = cvQueryFrame(webcam);
+    cvCvtColor(curr_img, curr_img, CV_BGR2GRAY);
     if (curr_img)
     {
-        cvCalcOpticalFlowFarneback(prev_img, curr_img, computed_img, 0.5, 1, 1, 1, 5, 1.1, 0);
+        cvCalcOpticalFlowFarneback(prev_img, curr_img, computed_img, 0.5, 3, 15, 3, 5, 1.2, 0);
         cvSaveImage(filename, computed_img, 0);
         sprintf(cmd, "ristretto %s", filename);
         system(cmd);
